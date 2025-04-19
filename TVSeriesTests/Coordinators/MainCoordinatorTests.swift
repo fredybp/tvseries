@@ -12,42 +12,75 @@ import XCTest
 class MainCoordinatorTests: XCTestCase {
     private var coordinator: MainCoordinator!
     private var mockNavigationController: MockNavigationController!
+    private var mockWindow: WindowMock!
+    private var mockPinService: MockPINService!
 
     override func setUp() {
         super.setUp()
         mockNavigationController = MockNavigationController()
-        coordinator = MainCoordinator(navigationController: mockNavigationController)
+        mockWindow = WindowMock(rootViewController: mockNavigationController)
+        mockPinService = MockPINService()
+        coordinator = MainCoordinator(
+            window: mockWindow,
+            pinService: mockPinService
+        )
     }
 
     override func tearDown() {
         coordinator = nil
         mockNavigationController = nil
+        mockWindow = nil
+        mockPinService = nil
         super.tearDown()
     }
 
-    func testStart() {
+    func testStartNoPinSet() {
         // When
+        mockPinService.isPINSet = false
         coordinator.start()
 
         // Then
-        XCTAssertEqual(mockNavigationController.pushViewControllerCallCount, 1)
-        XCTAssertEqual(mockNavigationController.pushedViewControllers.count, 1)
-        XCTAssertTrue(mockNavigationController.pushedViewControllers.first is HomeViewController)
-        XCTAssertEqual(mockNavigationController.lastPushAnimated, false)
+        XCTAssert(
+            mockWindow.rootViewController is UINavigationController)
+        XCTAssert((mockWindow.rootViewController as? UINavigationController)?.topViewController is HomeViewController)
+        XCTAssertEqual(
+            mockWindow.makeKeyAndVisibleCallCount,
+            1
+        )
+    }
+    
+    func testStartPinSet() {
+        // When
+        mockPinService.isPINSet = true
+        coordinator.start()
+
+        // Then
+        XCTAssert(
+            mockWindow.rootViewController is PINViewController)
+        XCTAssertEqual(
+            mockWindow.makeKeyAndVisibleCallCount,
+            1
+        )
     }
 
     func testNavigateToShowDetail() {
         // Given
         let show = TVShow.mock()
+        mockPinService.isPINSet = false
 
         // When
+        coordinator.start()
         coordinator.navigateToDetail(with: show)
 
         // Then
-        XCTAssertEqual(mockNavigationController.pushViewControllerCallCount, 1)
-        XCTAssertEqual(mockNavigationController.pushedViewControllers.count, 1)
-        XCTAssertTrue(mockNavigationController.pushedViewControllers.first is DetailViewController)
-        XCTAssertEqual(mockNavigationController.lastPushAnimated, true)
+//        XCTAssertEqual(mockNavigationController.pushViewControllerCallCount, 1)
+//        XCTAssertEqual(mockNavigationController.pushedViewControllers.count, 1)
+        XCTAssert(
+            (
+                mockWindow.rootViewController as? UINavigationController
+            )?.topViewController is DetailViewController
+        )
+//        XCTAssertEqual(mockNavigationController.lastPushAnimated, true)
     }
 
     func testNavigateToEpisodeDetail() {

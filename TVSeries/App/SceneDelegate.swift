@@ -16,13 +16,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         options connectionOptions: UIScene.ConnectionOptions
     ) {
         guard let windowScene = (scene as? UIWindowScene) else { return }
-
-        let navController = UINavigationController()
-        coordinator = MainCoordinator(navigationController: navController)
-        coordinator?.start()
-
         window = UIWindow(windowScene: windowScene)
-        window?.rootViewController = navController
-        window?.makeKeyAndVisible()
+        guard let window = window else { return }
+
+        coordinator = MainCoordinator(
+            window: window,
+            pinService: PINService(keychain: Keychain.standard)
+        )
+        coordinator?.start()
     }
 }
