@@ -81,6 +81,26 @@ class TVMazeService {
             .mapError { TVMazeError.decodingError($0) }
             .eraseToAnyPublisher()
     }
+
+    func fetchEpisodes(for showId: Int) -> AnyPublisher<[Episode], TVMazeError> {
+        guard let url = URL(string: "\(baseURL)/shows/\(showId)/episodes") else {
+            return Fail(error: TVMazeError.invalidURL).eraseToAnyPublisher()
+        }
+
+        return URLSession.shared.dataTaskPublisher(for: url)
+            .mapError { TVMazeError.networkError($0) }
+            .tryMap { data, response in
+                guard let httpResponse = response as? HTTPURLResponse,
+                    httpResponse.statusCode == 200
+                else {
+                    throw TVMazeError.invalidResponse
+                }
+                return data
+            }
+            .decode(type: [Episode].self, decoder: JSONDecoder())
+            .mapError { TVMazeError.decodingError($0) }
+            .eraseToAnyPublisher()
+    }
 }
 
 struct SearchResult: Codable {

@@ -11,45 +11,35 @@ struct TVShow: Identifiable, Codable {
     let id: Int
     let name: String
     let summary: String?
-    let image: Image?
+    let image: ShowImage?
     let premiered: String?
-    let rating: Rating
+    let rating: Rating?
     let genres: [String]
-    let status: String
-    let schedule: Schedule
+    let status: String?
+    let schedule: Schedule?
     let network: Network?
-    let webChannel: Network?
 
-    var formattedPremieredDate: String {
-        guard let premiered = premiered else { return "N/A" }
+    var formattedPremiered: String? {
+        guard let premiered = premiered else { return nil }
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd"
         if let date = dateFormatter.date(from: premiered) {
-            dateFormatter.dateFormat = "MMM d, yyyy"
+            dateFormatter.dateFormat = "MMMM d, yyyy"
             return dateFormatter.string(from: date)
         }
-        return premiered
+        return nil
     }
 
-    var displayNetwork: String {
-        if let network = network {
-            return network.name
-        } else if let webChannel = webChannel {
-            return webChannel.name
-        }
-        return "N/A"
+    var displayRating: String {
+        guard let rating = rating?.average else { return "N/A" }
+        return String(format: "%.1f", rating)
     }
 
     var scheduleText: String {
-        let days = schedule.days.joined(separator: ", ")
-        let time = schedule.time
+        let days = schedule?.days.joined(separator: ", ") ?? "N/A"
+        let time = schedule?.time ?? "N/A"
         return "\(days) at \(time)"
     }
-}
-
-struct Image: Codable {
-    let medium: String?
-    let original: String?
 }
 
 struct Rating: Codable {
@@ -62,7 +52,6 @@ struct Schedule: Codable {
 }
 
 struct Network: Codable {
-    let id: Int
     let name: String
     let country: Country?
 }

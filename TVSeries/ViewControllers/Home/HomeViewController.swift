@@ -33,12 +33,9 @@ class HomeViewController: UIViewController {
         controller.searchBar.autocorrectionType = .no
         return controller
     }()
-
-    private lazy var activityIndicator: UIActivityIndicatorView = {
-        let indicator = UIActivityIndicatorView(style: .large)
-        indicator.translatesAutoresizingMaskIntoConstraints = false
-        indicator.hidesWhenStopped = true
-        return indicator
+    
+    private lazy var loadingIndicator: LoadingIndicatorView = {
+        return LoadingIndicatorView()
     }()
 
     private lazy var loadingMoreIndicator: UIActivityIndicatorView = {
@@ -121,7 +118,7 @@ class HomeViewController: UIViewController {
 
     private func setupUI() {
         view.addSubview(tableView)
-        view.addSubview(activityIndicator)
+        view.addSubview(loadingIndicator)
         view.addSubview(emptyStateView)
 
         let tableFooterView = UIView(
@@ -136,8 +133,10 @@ class HomeViewController: UIViewController {
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
 
-            activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            loadingIndicator.centerXAnchor
+                .constraint(equalTo: view.centerXAnchor),
+            loadingIndicator.centerYAnchor
+                .constraint(equalTo: view.centerYAnchor),
 
             emptyStateView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             emptyStateView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -159,7 +158,7 @@ class HomeViewController: UIViewController {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] isLoading in
                 if isLoading {
-                    self?.activityIndicator.stopAnimating()
+                    self?.loadingIndicator.stopAnimating()
                     self?.tableView.reloadData()
                 }
             }
@@ -290,99 +289,3 @@ extension HomeViewController: UISearchBarDelegate {
     }
 }
 
-// MARK: - TVShowCell
-class TVShowCell: UITableViewCell {
-    private let posterImageView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.contentMode = .scaleAspectFill
-        imageView.clipsToBounds = true
-        imageView.layer.cornerRadius = 8
-        return imageView
-    }()
-
-    private let titleLabel: UILabel = {
-        let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 16, weight: .semibold)
-        label.numberOfLines = 2
-        return label
-    }()
-
-    private let networkLabel: UILabel = {
-        let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 14)
-        label.textColor = .secondaryLabel
-        return label
-    }()
-
-    private let ratingLabel: UILabel = {
-        let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 14)
-        label.textColor = .systemOrange
-        return label
-    }()
-
-    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
-        setupUI()
-    }
-
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
-    private func setupUI() {
-        contentView.addSubview(posterImageView)
-        contentView.addSubview(titleLabel)
-        contentView.addSubview(networkLabel)
-        contentView.addSubview(ratingLabel)
-
-        NSLayoutConstraint.activate([
-            posterImageView.leadingAnchor.constraint(
-                equalTo: contentView.leadingAnchor, constant: 16),
-            posterImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 8),
-            posterImageView.bottomAnchor.constraint(
-                equalTo: contentView.bottomAnchor, constant: -8),
-            posterImageView.widthAnchor.constraint(equalToConstant: 100),
-
-            titleLabel.leadingAnchor.constraint(
-                equalTo: posterImageView.trailingAnchor, constant: 16),
-            titleLabel.trailingAnchor.constraint(
-                equalTo: contentView.trailingAnchor, constant: -16),
-            titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 8),
-
-            networkLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
-            networkLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
-            networkLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 4),
-
-            ratingLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
-            ratingLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
-            ratingLabel.topAnchor.constraint(equalTo: networkLabel.bottomAnchor, constant: 4),
-            ratingLabel.bottomAnchor.constraint(
-                lessThanOrEqualTo: contentView.bottomAnchor, constant: -8),
-        ])
-    }
-
-    func configure(with show: TVShow) {
-        titleLabel.text = show.name
-        networkLabel.text = show.displayNetwork
-        ratingLabel.text = show.rating.average.map { String(format: "⭐️ %.1f", $0) } ?? "No rating"
-
-        if let imageURL = show.image?.medium {
-            posterImageView.loadImage(from: imageURL)
-        } else {
-            posterImageView.image = UIImage(systemName: "tv")
-            posterImageView.contentMode = .center
-        }
-    }
-    
-    override func prepareForReuse() {
-        titleLabel.text = nil
-        networkLabel.text = nil
-        ratingLabel.text = nil
-        posterImageView.image = nil
-    }
-}
