@@ -8,15 +8,6 @@
 import Combine
 import Foundation
 
-enum TVMazeError: Error {
-    case invalidURL
-    case networkError(Error)
-    case decodingError(Error)
-    case invalidResponse
-    case noMorePages
-    case emptySearchQuery
-}
-
 class TVMazeService {
     private let baseURL = "https://api.tvmaze.com"
     private let pageSize = 250  // TVMaze's default page size

@@ -42,21 +42,30 @@ struct TVShow: Identifiable, Codable {
     }
 }
 
-struct Rating: Codable {
+extension TVShow: Equatable {
+    static func == (lhs: TVShow, rhs: TVShow) -> Bool {
+        lhs.id == rhs.id && lhs.name == rhs.name && lhs.summary == rhs.summary
+            && lhs.image == rhs.image && lhs.premiered == rhs.premiered && lhs.rating == rhs.rating
+            && lhs.genres == rhs.genres && lhs.status == rhs.status && lhs.schedule == rhs.schedule
+            && lhs.network == rhs.network
+    }
+}
+
+struct Rating: Codable, Equatable {
     let average: Double?
 }
 
-struct Schedule: Codable {
+struct Schedule: Codable, Equatable {
     let time: String
     let days: [String]
 }
 
-struct Network: Codable {
+struct Network: Codable, Equatable {
     let name: String
     let country: Country?
 }
 
-struct Country: Codable {
+struct Country: Codable, Equatable {
     let name: String
     let code: String
     let timezone: String

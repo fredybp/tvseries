@@ -17,3 +17,10 @@ struct Episode: Identifiable, Codable {
     let runtime: Int?
     let image: ShowImage?
 }
+
+extension Episode: Equatable {
+    static func == (lhs: Episode, rhs: Episode) -> Bool {
+        lhs.id == rhs.id && lhs.name == rhs.name && lhs.season == rhs.season
+            && lhs.number == rhs.number && lhs.summary == rhs.summary && lhs.image == rhs.image
+    }
+}

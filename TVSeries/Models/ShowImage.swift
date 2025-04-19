@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct ShowImage: Codable {
+struct ShowImage: Codable, Equatable {
     let medium: String?
     let original: String?
 }
