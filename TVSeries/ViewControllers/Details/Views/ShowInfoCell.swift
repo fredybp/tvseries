@@ -68,7 +68,7 @@ class ShowInfoCell: UITableViewCell {
             scheduleLabel.text = "Airs: \(days) at \(time)"
         }
 
-        // summaryLabel.text = show.summary?.replacingOccurrences(
-        //     of: "<[^>]+>", with: "", options: .regularExpression)
+         summaryLabel.text = show.summary?.replacingOccurrences(
+             of: "<[^>]+>", with: "", options: .regularExpression)
     }
 }

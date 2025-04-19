@@ -102,8 +102,3 @@ class TVMazeService {
             .eraseToAnyPublisher()
     }
 }
-
-struct SearchResult: Codable {
-    let show: TVShow
-    let score: Double
-}

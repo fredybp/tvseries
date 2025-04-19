@@ -17,5 +17,3 @@ struct Episode: Identifiable, Codable {
     let runtime: Int?
     let image: ShowImage?
 }
-
-

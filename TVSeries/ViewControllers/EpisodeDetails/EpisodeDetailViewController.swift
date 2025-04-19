@@ -84,7 +84,6 @@ class EpisodeDetailViewController: UIViewController {
 
     private func setupUI() {
         view.backgroundColor = .systemBackground
-        title = "Episode Details"
 
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
@@ -126,6 +125,7 @@ class EpisodeDetailViewController: UIViewController {
     }
 
     private func configure(with episode: Episode) {
+        title = episode.name
         nameLabel.text = episode.name
         seasonAndNumberLabel.text = "Season \(episode.season) • Episode \(episode.number)"
 
