@@ -246,7 +246,7 @@ extension HomeViewController: UITableViewDataSource, UITableViewDelegate {
         }
         return viewModel.shows.count
     }
-
+    
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         160
     }
@@ -375,6 +375,14 @@ class TVShowCell: UITableViewCell {
             posterImageView.loadImage(from: imageURL)
         } else {
             posterImageView.image = UIImage(systemName: "tv")
+            posterImageView.contentMode = .center
         }
+    }
+    
+    override func prepareForReuse() {
+        titleLabel.text = nil
+        networkLabel.text = nil
+        ratingLabel.text = nil
+        posterImageView.image = nil
     }
 }
