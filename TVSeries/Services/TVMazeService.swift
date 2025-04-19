@@ -8,9 +8,22 @@
 import Combine
 import Foundation
 
-class TVMazeService {
+protocol TVMazeServiceProtocol {
+    func fetchShows(page: Int) -> AnyPublisher<[TVShow], TVMazeError>
+    func searchShows(query: String) -> AnyPublisher<[TVShow], TVMazeError>
+    func fetchEpisodes(for showId: Int) -> AnyPublisher<[Episode], TVMazeError>
+}
+
+class TVMazeService: TVMazeServiceProtocol {
     private let baseURL = "https://api.tvmaze.com"
     private let pageSize = 250  // TVMaze's default page size
+    private let session: URLSession
+    private let decoder: JSONDecoder
+
+    init(session: URLSession = .shared, decoder: JSONDecoder = JSONDecoder()) {
+        self.session = session
+        self.decoder = decoder
+    }
 
     func fetchShows(page: Int = 0) -> AnyPublisher<[TVShow], TVMazeError> {
         let endpoint = "/shows"

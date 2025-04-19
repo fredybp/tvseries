@@ -14,13 +14,16 @@ class DetailViewModel: BaseViewModel {
     @Published private(set) var isLoading = false
     @Published var error: TVMazeError?
 
-    private let tvMazeService: TVMazeService
+    private let tvMazeService: TVMazeServiceProtocol
     private var cancellables = Set<AnyCancellable>()
 
-    init(coordinator: MainCoordinator, show: TVShow, tvMazeService: TVMazeService) {
+    init(coordinator: MainCoordinator, show: TVShow, tvMazeService: TVMazeServiceProtocol) {
         self.show = show
         self.tvMazeService = tvMazeService
         super.init(coordinator: coordinator)
+    }
+
+    public func viewDidLoad() {
         loadEpisodes()
     }
 

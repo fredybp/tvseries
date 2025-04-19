@@ -51,6 +51,7 @@ class DetailViewController: UIViewController {
         view.backgroundColor = .systemGroupedBackground
         setupUI()
         setupBindings()
+        viewModel.viewDidLoad()
     }
 
     private func setupUI() {

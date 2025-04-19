@@ -33,7 +33,7 @@ class HomeViewController: UIViewController {
         controller.searchBar.autocorrectionType = .no
         return controller
     }()
-    
+
     private lazy var loadingIndicator: LoadingIndicatorView = {
         return LoadingIndicatorView()
     }()
@@ -114,9 +114,11 @@ class HomeViewController: UIViewController {
         setupUI()
         setupBindings()
         setupNavigationBar()
+        viewModel.viewDidLoad()
     }
 
     private func setupUI() {
+        navigationController?.navigationBar.prefersLargeTitles = true
         view.addSubview(tableView)
         view.addSubview(loadingIndicator)
         view.addSubview(emptyStateView)
@@ -245,7 +247,7 @@ extension HomeViewController: UITableViewDataSource, UITableViewDelegate {
         }
         return viewModel.shows.count
     }
-    
+
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         160
     }
@@ -288,4 +290,3 @@ extension HomeViewController: UISearchBarDelegate {
         viewModel.searchQuery = ""
     }
 }
-

@@ -9,23 +9,26 @@ import Combine
 import Foundation
 
 class HomeViewModel: BaseViewModel {
-    @Published var shows: [TVShow] = []
-    @Published var isLoading: Bool = false
-    @Published var isLoadingMore: Bool = false
+    @Published private(set) var shows: [TVShow] = []
+    @Published private(set) var isLoading = false
+    @Published private(set) var isLoadingMore = false
+    @Published private(set) var hasMorePages = true
     @Published var error: TVMazeError?
-    @Published var searchQuery: String = ""
-    @Published var hasMorePages: Bool = true
+    @Published var searchQuery = ""
     @Published var isSearching: Bool = false
 
-    private let tvMazeService: TVMazeService
-    private var cancellables = Set<AnyCancellable>()
+    private let tvMazeService: TVMazeServiceProtocol
     private var currentPage = 0
+    private var cancellables = Set<AnyCancellable>()
     private var searchCancellable: AnyCancellable?
 
-    init(coordinator: MainCoordinator, tvMazeService: TVMazeService) {
+    init(coordinator: MainCoordinator, tvMazeService: TVMazeServiceProtocol) {
         self.tvMazeService = tvMazeService
         super.init(coordinator: coordinator)
         setupSearchBinding()
+    }
+
+    public func viewDidLoad() {
         loadShows()
     }
 
