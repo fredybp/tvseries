@@ -61,4 +61,8 @@ class DetailViewModel: BaseViewModel {
             }
             .store(in: &cancellables)
     }
+
+    func didSelectEpisode(_ episode: Episode) {
+        coordinator?.navigateToEpisodeDetail(episode: episode)
+    }
 }

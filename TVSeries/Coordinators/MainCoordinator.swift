@@ -28,6 +28,11 @@ class MainCoordinator: Coordinator {
         navigationController.pushViewController(detailVC, animated: true)
     }
 
+    func navigateToEpisodeDetail(episode: Episode) {
+        let episodeDetailVC = EpisodeDetailViewController(episode: episode)
+        navigationController.pushViewController(episodeDetailVC, animated: true)
+    }
+
     func navigateToSettings() {
         let viewModel = SettingsViewModel(coordinator: self)
         let settingsVC = SettingsViewController(viewModel: viewModel)

@@ -190,4 +190,16 @@ extension DetailViewController: UITableViewDelegate {
 
         return 80
     }
+
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+
+        // Only handle episode selection
+        guard indexPath.section >= 2 else { return }
+
+        let season = seasons[indexPath.section - 2]
+        if let episode = episodesBySeason[season]?[indexPath.row] {
+            viewModel.didSelectEpisode(episode)
+        }
+    }
 }
