@@ -41,7 +41,7 @@ class Keychain: KeychainProtocol {
             if let value = newValue {
                 let data = value.data(using: .utf8)!
 
-                var query: [String: Any] = [
+                let query: [String: Any] = [
                     kSecClass as String: kSecClassGenericPassword,
                     kSecAttrAccount as String: key,
                     kSecValueData as String: data,

@@ -87,8 +87,7 @@ class TVShowDetailCell: UITableViewCell {
         favoriteButton.isSelected = isFavorite
 
         if let imageUrl = show.image?.medium {
-            // Load image using your preferred image loading method
-            // For example: posterImageView.load(from: imageUrl)
+            posterImageView.loadImage(from: imageUrl)
         }
     }
 
