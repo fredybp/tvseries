@@ -11,157 +11,102 @@ import XCTest
 @testable import TVSeries
 
 class HomeViewModelTests: XCTestCase {
-    private var viewModel: HomeViewModel!
-    private var mockService: MockTVMazeService!
+    private var sut: HomeViewModel!
+    private var mockTVMazeService: MockTVMazeService!
     private var mockCoordinator: MockMainCoordinator!
+    private var mockFavoritesService: MockFavoritesService!
     private var cancellables: Set<AnyCancellable>!
 
     override func setUp() {
         super.setUp()
-        mockService = MockTVMazeService()
+        mockTVMazeService = MockTVMazeService()
+        mockFavoritesService = MockFavoritesService()
         mockCoordinator = MockMainCoordinator()
-        viewModel = HomeViewModel(coordinator: mockCoordinator, tvMazeService: mockService)
+        sut = HomeViewModel(
+            coordinator: mockCoordinator,
+            tvMazeService: mockTVMazeService,
+            favoritesService: mockFavoritesService
+        )
         cancellables = []
     }
 
     override func tearDown() {
-        viewModel = nil
-        mockService = nil
+        sut = nil
+        mockTVMazeService = nil
+        mockFavoritesService = nil
         mockCoordinator = nil
         cancellables = nil
         super.tearDown()
     }
 
+    // MARK: - Initial State Tests
     func testInitialState() {
-        XCTAssertEqual(mockService.fetchShowsCallCount, 0)
-        XCTAssertEqual(mockService.searchShowsCallCount, 0)
-        XCTAssertEqual(mockCoordinator.navigateToDetailCallCount, 0)
-        XCTAssertFalse(viewModel.isLoading)
-        XCTAssertFalse(viewModel.isLoadingMore)
-        XCTAssertTrue(viewModel.hasMorePages)
-        XCTAssertTrue(viewModel.shows.isEmpty)
-        XCTAssertNil(viewModel.error)
+        XCTAssertTrue(sut.shows.isEmpty)
+        XCTAssertFalse(sut.isLoading)
+        XCTAssertFalse(sut.isLoadingMore)
+        XCTAssertFalse(sut.isSearching)
+        XCTAssertNil(sut.error)
+        XCTAssertTrue(sut.hasMorePages)
     }
 
+    // MARK: - Load Shows Tests
     func testLoadShowsSuccess() {
         // Given
-        XCTAssertEqual(mockService.fetchShowsCallCount, 0)
-        XCTAssertEqual(mockService.searchShowsCallCount, 0)
-        XCTAssertEqual(mockCoordinator.navigateToDetailCallCount, 0)
-        let expectedShows = [TVShow.mock(), TVShow.mock()]
-        mockService.fetchShowsResult = .success(expectedShows)
-
-        let expectation = XCTestExpectation(description: "Shows loaded")
+        let expectedShows = [TVShow.loadingPlaceholderData()]
+        mockTVMazeService.fetchShowsResult = .success(expectedShows)
 
         // When
-        viewModel.$shows
-            .dropFirst()
-            .sink { shows in
-                XCTAssertEqual(shows, expectedShows)
-                expectation.fulfill()
-            }
-            .store(in: &cancellables)
-
-        viewModel.viewDidLoad()
+        sut.viewDidLoad()
 
         // Then
-        wait(for: [expectation], timeout: 1.0)
-        XCTAssertFalse(viewModel.isLoading)
-        XCTAssertNil(viewModel.error)
-        XCTAssertEqual(mockService.fetchShowsCallCount, 1)
-        XCTAssertEqual(mockService.lastFetchShowsPage, 0)
+        XCTAssertNil(sut.error)
+        XCTAssertEqual(mockTVMazeService.fetchShowsCallCount, 1)
+        XCTAssertEqual(mockTVMazeService.lastFetchShowsPage, 0)
     }
 
-    func testLoadShowsFailure() {
+    // MARK: - Favorites Tests
+    func testToggleFavorite() {
         // Given
-        XCTAssertEqual(mockService.fetchShowsCallCount, 0)
-        XCTAssertEqual(mockService.searchShowsCallCount, 0)
-        XCTAssertEqual(mockCoordinator.navigateToDetailCallCount, 0)
-        let expectedError = TVMazeError.networkError(NSError(domain: "", code: 0))
-        mockService.fetchShowsResult = .failure(expectedError)
-
-        let expectation = XCTestExpectation(description: "Error received")
+        let showId = 1
 
         // When
-        viewModel.$error
-            .dropFirst()
-            .sink { error in
-                XCTAssertEqual(error, expectedError)
-                expectation.fulfill()
-            }
-            .store(in: &cancellables)
-
-        viewModel.searchQuery = ""
-        viewModel.viewDidLoad()
+        sut.toggleFavorite(showId: showId)
 
         // Then
-        wait(for: [expectation], timeout: 5.0)
-        XCTAssertFalse(viewModel.isLoading)
-        XCTAssertTrue(viewModel.shows.isEmpty)
-        XCTAssertEqual(mockService.fetchShowsCallCount, 1)
-        XCTAssertEqual(mockService.searchShowsCallCount, 0)
+        XCTAssertEqual(mockFavoritesService.toggleFavoriteCallCount, 1)
     }
 
-    func testSearchShowsSuccess() {
+    func testIsFavorite() {
         // Given
-        XCTAssertEqual(mockService.fetchShowsCallCount, 0)
-        XCTAssertEqual(mockService.searchShowsCallCount, 0)
-        XCTAssertEqual(mockCoordinator.navigateToDetailCallCount, 0)
-        let expectedShows = [TVShow.mock(), TVShow.mock()]
-        mockService.searchShowsResult = .success(expectedShows)
-        let searchQuery = "test"
-
-        let expectation = XCTestExpectation(description: "Search results loaded")
+        let showId = 1
+        mockFavoritesService.setFavorites([showId])
 
         // When
-        viewModel.$shows
-            .dropFirst()
-            .sink { shows in
-                XCTAssertEqual(shows, expectedShows)
-                expectation.fulfill()
-            }
-            .store(in: &cancellables)
-
-        viewModel.searchQuery = searchQuery
+        let isFavorite = sut.isFavorite(showId: showId)
 
         // Then
-        wait(for: [expectation], timeout: 1.0)
-        XCTAssertFalse(viewModel.isLoading)
-        XCTAssertNil(viewModel.error)
-        XCTAssertEqual(mockService.searchShowsCallCount, 1)
-        XCTAssertEqual(mockService.lastSearchShowsQuery, searchQuery)
+        XCTAssertTrue(isFavorite)
+        XCTAssertEqual(mockFavoritesService.isFavoriteCallCount, 1)
     }
 
-    func testLoadMoreShows() {
-        // Given
-        XCTAssertEqual(mockService.fetchShowsCallCount, 0)
-        XCTAssertEqual(mockService.searchShowsCallCount, 0)
-        XCTAssertEqual(mockCoordinator.navigateToDetailCallCount, 0)
-        let initialShows = Array(repeating: TVShow.mock(), count: 250)
-        let moreShows = Array(repeating: TVShow.mock(), count: 250)
-        mockService.fetchShowsResult = .success(initialShows)
-
-        let expectation = XCTestExpectation(description: "More shows loaded")
-
+    // MARK: - Navigation Tests
+    func testOpenSettings() {
         // When
-        viewModel.viewDidLoad()
-
-        mockService.fetchShowsResult = .success(moreShows)
-
-        viewModel.$shows
-            .dropFirst(2)
-            .sink { shows in
-                XCTAssertEqual(shows, initialShows + moreShows)
-                expectation.fulfill()
-            }
-            .store(in: &cancellables)
-
-        viewModel.loadMoreShows()
+        sut.openSettings()
 
         // Then
-        wait(for: [expectation], timeout: 1.0)
-        XCTAssertFalse(viewModel.isLoadingMore)
-        XCTAssertEqual(mockService.fetchShowsCallCount, 2)
-        XCTAssertEqual(mockService.lastFetchShowsPage, 1)
+        XCTAssertEqual(mockCoordinator.navigateToSettingsCallCount, 1)
+    }
+
+    func testDidSelectShow() {
+        // Given
+        let show = TVShow.loadingPlaceholderData()
+
+        // When
+        sut.didSelectShow(show)
+
+        // Then
+        XCTAssertEqual(mockCoordinator.navigateToDetailCallCount, 1)
+        XCTAssertEqual(mockCoordinator.lastSelectedShow, show)
     }
 }

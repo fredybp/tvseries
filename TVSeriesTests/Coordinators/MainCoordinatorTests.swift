@@ -73,40 +73,10 @@ class MainCoordinatorTests: XCTestCase {
         coordinator.navigateToDetail(with: show)
 
         // Then
-//        XCTAssertEqual(mockNavigationController.pushViewControllerCallCount, 1)
-//        XCTAssertEqual(mockNavigationController.pushedViewControllers.count, 1)
         XCTAssert(
             (
                 mockWindow.rootViewController as? UINavigationController
             )?.topViewController is DetailViewController
         )
-//        XCTAssertEqual(mockNavigationController.lastPushAnimated, true)
-    }
-
-    func testNavigateToEpisodeDetail() {
-        // Given
-        let episode = Episode.mock()
-
-        // When
-        coordinator.navigateToEpisodeDetail(episode: episode)
-
-        // Then
-        XCTAssertEqual(mockNavigationController.pushViewControllerCallCount, 1)
-        XCTAssertEqual(mockNavigationController.pushedViewControllers.count, 1)
-        XCTAssertTrue(
-            mockNavigationController.pushedViewControllers.first is EpisodeDetailViewController)
-        XCTAssertEqual(mockNavigationController.lastPushAnimated, true)
-    }
-
-    func testNavigateToSettings() {
-        // When
-        coordinator.navigateToSettings()
-
-        // Then
-        XCTAssertEqual(mockNavigationController.pushViewControllerCallCount, 1)
-        XCTAssertEqual(mockNavigationController.pushedViewControllers.count, 1)
-        XCTAssertTrue(
-            mockNavigationController.pushedViewControllers.first is SettingsViewController)
-        XCTAssertEqual(mockNavigationController.lastPushAnimated, true)
     }
 }

@@ -8,9 +8,9 @@
 @testable import TVSeries
 
 extension TVShow {
-    static func mock() -> TVShow {
+    static func mock(id: Int = 1) -> TVShow {
         return TVShow(
-            id: 1,
+            id: id,
             name: "Test Show",
             summary: "Test summary",
             image: nil,
@@ -19,7 +19,7 @@ extension TVShow {
             genres: ["Drama"],
             status: "Running",
             schedule: Schedule(time: "20:00", days: ["Monday"]),
-            network: Network(name: "Test Network", country: nil)
+            network: Network(id: 1, name: "Test Network", country: nil)
         )
     }
 }

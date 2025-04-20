@@ -243,7 +243,7 @@ class HomeViewController: UIViewController {
 extension HomeViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if viewModel.isLoading && viewModel.shows.isEmpty {
-            return 10  // Show 10 skeleton cells while loading
+            return 10
         }
         return viewModel.shows.count
     }
@@ -253,18 +253,37 @@ extension HomeViewController: UITableViewDataSource, UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard viewModel.shows.indices.contains(indexPath.row),
-            let cell =
-                tableView.dequeueReusableCell(withIdentifier: "TVShowCell", for: indexPath)
-                as? TVShowCell
-        else { return UITableViewCell() }
+        guard
+            let cell = tableView.dequeueReusableCell(
+                withIdentifier: TVShowCell.identifier,
+                for: indexPath
+            ) as? TVShowCell
+        else {
+            return UITableViewCell()
+        }
+
+        if viewModel.isLoading && viewModel.shows.isEmpty {
+            cell.configure(
+                with: TVShow.loadingPlaceholderData(), isFavorite: false, onFavoriteTapped: { _ in }
+            )
+            return cell
+        }
+
         let show = viewModel.shows[indexPath.row]
-        cell.configure(with: show)
+        cell.configure(
+            with: show,
+            isFavorite: viewModel.isFavorite(showId: show.id),
+            onFavoriteTapped: { [weak self] showId in
+                self?.viewModel.toggleFavorite(showId: showId)
+                self?.tableView.reloadData()
+            }
+        )
         return cell
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
+        guard !viewModel.isLoading || !viewModel.shows.isEmpty else { return }
         let show = viewModel.shows[indexPath.row]
         viewModel.didSelectShow(show)
     }

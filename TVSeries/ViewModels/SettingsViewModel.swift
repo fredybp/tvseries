@@ -9,11 +9,6 @@ import Combine
 import Foundation
 
 class SettingsViewModel: BaseViewModel {
-    @Published var settings: [String: Bool] = [
-        "Enable Notifications": true,
-        "Dark Mode": false,
-        "Auto-Refresh": true,
-    ]
 
     @Published private(set) var isPINEnabled: Bool
     @Published private(set) var error: PINError?
@@ -24,10 +19,6 @@ class SettingsViewModel: BaseViewModel {
         self.pinService = pinService
         self.isPINEnabled = pinService.isPINSet
         super.init(coordinator: coordinator)
-    }
-
-    func updateSetting(key: String, value: Bool) {
-        settings[key] = value
     }
 
     func togglePIN() {

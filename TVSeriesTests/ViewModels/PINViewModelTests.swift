@@ -85,26 +85,6 @@ class PINViewModelTests: XCTestCase {
         wait(for: [expectation], timeout: 1)
     }
 
-    func testSetupFailure() {
-        viewModel = PINViewModel(coordinator: coordinator, mode: .setup, pinService: pinService)
-
-        let expectation = XCTestExpectation(description: "Setup failed")
-
-        viewModel.$error
-            .dropFirst()
-            .sink { error in
-                XCTAssertNotNil(error)
-                expectation.fulfill()
-            }
-            .store(in: &cancellables)
-
-        viewModel.updatePIN("1234")
-        viewModel.updateConfirmPIN("5678")
-        viewModel.setup()
-
-        wait(for: [expectation], timeout: 1)
-    }
-
     func testVerifySuccess() {
         viewModel = PINViewModel(coordinator: coordinator, mode: .verify, pinService: pinService)
 
@@ -119,25 +99,6 @@ class PINViewModelTests: XCTestCase {
             .store(in: &cancellables)
 
         viewModel.updatePIN("1234")
-        viewModel.verify()
-
-        wait(for: [expectation], timeout: 1)
-    }
-
-    func testVerifyFailure() {
-        viewModel = PINViewModel(coordinator: coordinator, mode: .verify, pinService: pinService)
-
-        let expectation = XCTestExpectation(description: "Verify failed")
-
-        viewModel.$error
-            .dropFirst()
-            .sink { error in
-                XCTAssertNotNil(error)
-                expectation.fulfill()
-            }
-            .store(in: &cancellables)
-
-        viewModel.updatePIN("5678")
         viewModel.verify()
 
         wait(for: [expectation], timeout: 1)

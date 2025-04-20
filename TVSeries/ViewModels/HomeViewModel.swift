@@ -18,12 +18,18 @@ class HomeViewModel: BaseViewModel {
     @Published var isSearching: Bool = false
 
     private let tvMazeService: TVMazeServiceProtocol
+    private let favoritesService: FavoritesServiceProtocol
     private var currentPage = 0
     private var cancellables = Set<AnyCancellable>()
     private var searchCancellable: AnyCancellable?
 
-    init(coordinator: MainCoordinator, tvMazeService: TVMazeServiceProtocol) {
+    init(
+        coordinator: MainCoordinator,
+        tvMazeService: TVMazeServiceProtocol,
+        favoritesService: FavoritesServiceProtocol
+    ) {
         self.tvMazeService = tvMazeService
+        self.favoritesService = favoritesService
         super.init(coordinator: coordinator)
         setupSearchBinding()
     }
@@ -63,7 +69,7 @@ class HomeViewModel: BaseViewModel {
     }
 
     func loadShows() {
-        guard hasMorePages && !isSearching else { return }
+        guard !isLoading, !isSearching, hasMorePages else { return }
 
         if currentPage == 0 {
             isLoading = true
@@ -78,15 +84,12 @@ class HomeViewModel: BaseViewModel {
                 self?.isLoading = false
                 self?.isLoadingMore = false
 
-                switch completion {
-                case .failure(let error):
-                    if case TVMazeError.noMorePages = error {
+                if case .failure(let error) = completion {
+                    if error == .noMorePages {
                         self?.hasMorePages = false
                     } else {
                         self?.error = error
                     }
-                default:
-                    break
                 }
             } receiveValue: { [weak self] newShows in
                 guard let self = self else { return }
@@ -104,6 +107,14 @@ class HomeViewModel: BaseViewModel {
     }
 
     func searchShows(query: String) {
+        searchQuery = query
+        isSearching = !query.isEmpty
+
+        if query.isEmpty {
+            resetAndLoadShows()
+            return
+        }
+
         isLoading = true
         error = nil
         hasMorePages = false  // Search results don't support pagination
@@ -139,5 +150,13 @@ class HomeViewModel: BaseViewModel {
 
     func openSettings() {
         coordinator?.navigateToSettings()
+    }
+
+    func toggleFavorite(showId: Int) {
+        favoritesService.toggleFavorite(showId: showId)
+    }
+
+    func isFavorite(showId: Int) -> Bool {
+        favoritesService.isFavorite(showId: showId)
     }
 }

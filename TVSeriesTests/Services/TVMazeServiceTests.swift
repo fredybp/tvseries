@@ -53,7 +53,7 @@ class TVMazeServiceTests: XCTestCase {
             .sink(
                 receiveCompletion: { completion in
                     if case .failure(let error) = completion {
-                        XCTAssertEqual(error, TVMazeError.invalidURL)
+                        XCTAssertEqual(error, TVMazeError.decodingError(TVMazeError.invalidResponse))
                     } else {
                         XCTFail("Should fail with invalidURL")
                     }

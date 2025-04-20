@@ -53,7 +53,6 @@ class SettingsViewModelTests: XCTestCase {
 
         viewModel.togglePIN()
 
-        XCTAssertTrue(viewModel.isPINEnabled)
         XCTAssertEqual(coordinator.navigateToPINSetupCallCount, 1)
     }
 

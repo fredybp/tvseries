@@ -35,7 +35,11 @@ class MainCoordinator: BaseCoordinator {
     }
 
     private func showHome() {
-        let homeViewModel = HomeViewModel(coordinator: self, tvMazeService: TVMazeService())
+        let homeViewModel = HomeViewModel(
+            coordinator: self,
+            tvMazeService: TVMazeService(),
+            favoritesService: FavoritesService()
+        )
         let homeViewController = HomeViewController(viewModel: homeViewModel)
         let navigationController = UINavigationController(rootViewController: homeViewController)
         currentViewController = navigationController

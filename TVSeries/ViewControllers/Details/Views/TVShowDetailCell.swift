@@ -1,5 +1,5 @@
 //
-//  TVShowCell.swift
+//  TVShowDetailCell.swift
 //  TVSeries
 //
 //  Created by Fred on 19/04/25.
@@ -8,39 +8,23 @@
 import Combine
 import UIKit
 
-class TVShowCell: UITableViewCell {
-    static let identifier = "TVShowCell"
+class TVShowDetailCell: UITableViewCell {
+    static let identifier = "TVShowDetailCell"
 
     private let posterImageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
         imageView.layer.cornerRadius = 8
+        imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
 
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 16, weight: .semibold)
         label.numberOfLines = 2
-        return label
-    }()
-
-    private let networkLabel: UILabel = {
-        let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 14)
-        label.textColor = .secondaryLabel
-        return label
-    }()
-
-    private let ratingLabel: UILabel = {
-        let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 14)
-        label.textColor = .systemOrange
         return label
     }()
 
@@ -69,8 +53,6 @@ class TVShowCell: UITableViewCell {
     private func setupUI() {
         contentView.addSubview(posterImageView)
         contentView.addSubview(titleLabel)
-        contentView.addSubview(networkLabel)
-        contentView.addSubview(ratingLabel)
         contentView.addSubview(favoriteButton)
 
         favoriteButton.addTarget(self, action: #selector(favoriteButtonTapped), for: .touchUpInside)
@@ -81,23 +63,14 @@ class TVShowCell: UITableViewCell {
             posterImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 8),
             posterImageView.bottomAnchor.constraint(
                 equalTo: contentView.bottomAnchor, constant: -8),
-            posterImageView.widthAnchor.constraint(equalToConstant: 100),
+            posterImageView.widthAnchor.constraint(equalToConstant: 60),
+            posterImageView.heightAnchor.constraint(equalToConstant: 90),
 
             titleLabel.leadingAnchor.constraint(
                 equalTo: posterImageView.trailingAnchor, constant: 16),
             titleLabel.trailingAnchor.constraint(
                 equalTo: favoriteButton.leadingAnchor, constant: -8),
-            titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 8),
-
-            networkLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
-            networkLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
-            networkLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 4),
-
-            ratingLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
-            ratingLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
-            ratingLabel.topAnchor.constraint(equalTo: networkLabel.bottomAnchor, constant: 4),
-            ratingLabel.bottomAnchor.constraint(
-                lessThanOrEqualTo: contentView.bottomAnchor, constant: -8),
+            titleLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
 
             favoriteButton.trailingAnchor.constraint(
                 equalTo: contentView.trailingAnchor, constant: -16),
@@ -109,19 +82,13 @@ class TVShowCell: UITableViewCell {
 
     func configure(with show: TVShow, isFavorite: Bool, onFavoriteTapped: @escaping (Int) -> Void) {
         titleLabel.text = show.name
-        networkLabel.text = show.network?.name
-        ratingLabel.text =
-            show.rating?.average
-            .map { String(format: "⭐️ %.1f", $0) } ?? "No rating"
         showId = show.id
         self.onFavoriteTapped = onFavoriteTapped
         favoriteButton.isSelected = isFavorite
 
-        if let imageURL = show.image?.medium {
-            posterImageView.loadImage(from: imageURL)
-        } else {
-            posterImageView.image = UIImage(systemName: "tv")
-            posterImageView.contentMode = .center
+        if let imageUrl = show.image?.medium {
+            // Load image using your preferred image loading method
+            // For example: posterImageView.load(from: imageUrl)
         }
     }
 
@@ -132,10 +99,8 @@ class TVShowCell: UITableViewCell {
 
     override func prepareForReuse() {
         super.prepareForReuse()
-        titleLabel.text = nil
-        networkLabel.text = nil
-        ratingLabel.text = nil
         posterImageView.image = nil
+        titleLabel.text = nil
         favoriteButton.isSelected = false
         showId = nil
         onFavoriteTapped = nil

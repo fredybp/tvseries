@@ -40,6 +40,21 @@ struct TVShow: Identifiable, Codable {
         let time = schedule?.time ?? "N/A"
         return "\(days) at \(time)"
     }
+
+    static func loadingPlaceholderData() -> TVShow {
+        TVShow(
+            id: 0,
+            name: "Loading...",
+            summary: nil,
+            image: nil,
+            premiered: nil,
+            rating: nil,
+            genres: [],
+            status: nil,
+            schedule: nil,
+            network: nil
+        )
+    }
 }
 
 extension TVShow: Equatable {
@@ -49,6 +64,11 @@ extension TVShow: Equatable {
             && lhs.genres == rhs.genres && lhs.status == rhs.status && lhs.schedule == rhs.schedule
             && lhs.network == rhs.network
     }
+}
+
+struct Image: Codable, Equatable {
+    let medium: String?
+    let original: String?
 }
 
 struct Rating: Codable, Equatable {
@@ -61,6 +81,7 @@ struct Schedule: Codable, Equatable {
 }
 
 struct Network: Codable, Equatable {
+    let id: Int
     let name: String
     let country: Country?
 }
